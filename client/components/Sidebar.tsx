@@ -34,15 +34,9 @@ export default function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="w-[260px] min-h-screen bg-[var(--color-app-sidebar)] border-r border-gray-800 flex flex-col fixed left-0 top-0 z-40 overflow-y-auto">
-            {/* Logo Area */}
-            <div className="p-6 mb-2">
-                <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-white tracking-wide">
-                        [YOUTUBE<span className="text-[var(--color-brand-orange)]">ANALYSIS</span>]
-                    </span>
-                </div>
-            </div>
+        <div className="w-[260px] h-[calc(100vh-72px)] bg-[var(--color-app-sidebar)] border-r border-gray-800 flex flex-col fixed left-0 top-[72px] z-40 overflow-y-auto">
+            {/* Logo Area Removed - Moved to Header */}
+            <div className="mt-4"></div>
 
             <div className="flex-1 px-4 space-y-6">
                 {menuGroups.map((group, groupIndex) => (

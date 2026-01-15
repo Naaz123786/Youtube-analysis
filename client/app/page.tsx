@@ -8,10 +8,10 @@ import Image from "next/image";
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--color-app-dark)] font-sans text-white">
+      <Header />
       <Sidebar />
 
-      <main className="ml-[260px]">
-        <Header />
+      <main className="ml-[260px] pt-[72px]">
 
         <div className="p-8">
           {/* Breadcrumb / Tag */}
