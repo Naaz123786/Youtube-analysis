@@ -40,6 +40,8 @@ const demographicsData = [
 export default function AnalyticsPage() {
     const [activeChart, setActiveChart] = useState<'views' | 'revenue'>('views');
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [showDateMenu, setShowDateMenu] = useState(false);
+    const [selectedRange, setSelectedRange] = useState('Last 28 Days');
 
     const getCsvContent = () => {
         const headers = ["Date", "Views", "Revenue"];
@@ -62,7 +64,7 @@ export default function AnalyticsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-12 animate-fade-in-up" onClick={() => setShowExportMenu(false)}>
+        <div className="space-y-8 pb-12 animate-fade-in-up" onClick={() => { setShowExportMenu(false); setShowDateMenu(false); }}>
 
             {/* Header with Tools */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -71,16 +73,44 @@ export default function AnalyticsPage() {
                     <p className="text-gray-400">Deep dive into your performance metrics.</p>
                 </div>
                 <div className="flex items-center gap-3 relative">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-xl text-gray-300 hover:text-white transition-colors text-sm">
-                        <Calendar className="w-4 h-4" />
-                        Last 28 Days
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowDateMenu(!showDateMenu);
+                                setShowExportMenu(false); // Close other menu
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-xl text-gray-300 hover:text-white transition-colors text-sm"
+                        >
+                            <Calendar className="w-4 h-4" />
+                            {selectedRange}
+                        </button>
+
+                        {/* Date Range Dropdown */}
+                        {showDateMenu && (
+                            <div className="absolute left-0 top-full mt-2 w-48 bg-[#1f2937] border border-gray-700 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                                {['Last 7 Days', 'Last 28 Days', 'Last 90 Days', 'Last Year', 'Lifetime'].map((range) => (
+                                    <button
+                                        key={range}
+                                        onClick={() => {
+                                            setSelectedRange(range);
+                                            setShowDateMenu(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-white/10 ${selectedRange === range ? 'text-blue-400 bg-white/5' : 'text-gray-200 hover:text-white'}`}
+                                    >
+                                        {range}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     <div className="relative">
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setShowExportMenu(!showExportMenu);
+                                setShowDateMenu(false); // Close other menu
                             }}
                             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-semibold transition-colors text-sm shadow-lg shadow-blue-600/20 active:scale-95 transform duration-150"
                         >

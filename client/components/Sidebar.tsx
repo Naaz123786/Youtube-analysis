@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/lib/store/useSidebarStore";
 
+
 const menuGroups = [
     {
         label: "MAIN",
@@ -94,7 +95,9 @@ export default function Sidebar() {
                 ))}
             </div>
 
-            <div className="p-3 mt-auto space-y-2">
+
+
+            <div className="p-3 space-y-2">
                 {!isCollapsed ? (
                     <button className="w-full bg-[var(--color-brand-orange)] text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity whitespace-nowrap overflow-hidden">
                         <LogIn className="w-5 h-5 flex-shrink-0" />

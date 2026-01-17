@@ -1,15 +1,26 @@
 "use client";
 
 import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import { useSidebarStore } from "@/lib/store/useSidebarStore";
+import { cn } from "@/lib/utils";
 import { BarChart3, TrendingUp, Sparkles, Trophy, ChevronRight, PlayCircle, Zap, ShieldCheck, ArrowRight } from "lucide-react";
 import Image from "next/image";
 
 export default function HomePage() {
+  const { isCollapsed } = useSidebarStore();
+
   return (
     <div className="min-h-screen bg-[#050505] font-sans text-white overflow-x-hidden selection:bg-teal-500/30">
       <Header />
+      <Sidebar />
 
-      <main className="pt-[72px] relative z-10 w-full">
+      <main
+        className={cn(
+          "pt-[72px] relative z-10 w-full transition-all duration-300 ease-in-out pr-8",
+          isCollapsed ? "pl-[100px]" : "pl-[250px]"
+        )}
+      >
 
         {/* Ambient Background Glows */}
         <div className="fixed top-20 right-0 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none z-0" />
