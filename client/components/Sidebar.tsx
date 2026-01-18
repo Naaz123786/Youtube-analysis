@@ -27,7 +27,7 @@ const menuGroups = [
     {
         label: "SETTINGS",
         items: [
-            { icon: Info, label: "Help & Support", href: "/support" },
+            { icon: Info, label: "Help & Support", href: "/dashboard/support" },
             { icon: Settings, label: "Settings", href: "/dashboard/settings" },
         ]
     }
