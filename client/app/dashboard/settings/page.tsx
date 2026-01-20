@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useChannelStore } from "@/lib/store/useChannelStore";
 
 type TabType = "profile" | "connections" | "notifications" | "billing";
 
@@ -62,10 +63,13 @@ export default function SettingsPage() {
     },
   ];
 
+  // Global State
+  const { isConnected, setIsConnected } = useChannelStore();
+
   // Current States
   const [profileData, setProfileData] = useState(initialProfile);
   const [notifications, setNotifications] = useState(initialNotifications);
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // Derived State: Check if there are changes
   const hasChanges =
@@ -93,6 +97,15 @@ export default function SettingsPage() {
   const handleReset = () => {
     setProfileData(initialProfile);
     setNotifications(initialNotifications);
+  };
+
+  const handleConnect = () => {
+    setIsConnecting(true);
+    // Simulating OAuth Redirect and Callback
+    setTimeout(() => {
+      setIsConnecting(false);
+      setIsConnected(true);
+    }, 2000);
   };
 
   const toggleNotification = (id: string) => {
@@ -340,12 +353,22 @@ export default function SettingsPage() {
                           </>
                         ) : (
                           <button
-                            onClick={() => setIsConnected(true)}
-                            className="flex items-center gap-3 px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-95 group/btn"
+                            onClick={handleConnect}
+                            disabled={isConnecting}
+                            className="flex items-center gap-3 px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-[0.15em] rounded-2xl shadow-xl shadow-red-600/20 transition-all active:scale-95 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Youtube className="w-4 h-4" />
-                            Connect YouTube Channel
-                            <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                            {isConnecting ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 animate-spin" />
+                                Connecting...
+                              </>
+                            ) : (
+                              <>
+                                <Youtube className="w-4 h-4" />
+                                Connect YouTube Channel
+                                <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                              </>
+                            )}
                           </button>
                         )}
                       </div>

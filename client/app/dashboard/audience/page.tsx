@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Users, Globe, Clock, UserCheck, Calendar, Info, Filter, ArrowUp, ArrowDown, Eye } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend, LineChart, Line } from 'recharts';
+import { useChannelStore } from "@/lib/store/useChannelStore";
 
 // --- Mock Data ---
 
@@ -43,6 +44,7 @@ const activeTimeData = [
 ];
 
 export default function AudiencePage() {
+    const { isConnected } = useChannelStore();
     const [selectedRange, setSelectedRange] = useState('Last 28 Days');
     const [showDateMenu, setShowDateMenu] = useState(false);
 
@@ -87,10 +89,10 @@ export default function AudiencePage() {
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Returning Viewers', value: '12.5K', icon: UserCheck, trend: '+15%', color: 'text-blue-400' },
-                    { label: 'Unique Viewers', value: '45.2K', icon: Users, trend: '+8%', color: 'text-purple-400' },
-                    { label: 'Subscribers', value: '+1.2K', icon: ArrowUp, trend: '+22%', color: 'text-green-400' },
-                    { label: 'Avg. Views/Viewer', value: '3.4', icon: Eye, trend: '-2%', color: 'text-orange-400' },
+                    { label: 'Returning Viewers', value: isConnected ? '12.5K' : '0', icon: UserCheck, trend: '+15%', color: 'text-blue-400' },
+                    { label: 'Unique Viewers', value: isConnected ? '45.2K' : '0', icon: Users, trend: '+8%', color: 'text-purple-400' },
+                    { label: 'Subscribers', value: isConnected ? '+1.2K' : '0', icon: ArrowUp, trend: '+22%', color: 'text-green-400' },
+                    { label: 'Avg. Views/Viewer', value: isConnected ? '3.4' : '0.0', icon: Eye, trend: '-2%', color: 'text-orange-400' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-[#0f1218] border border-gray-800 rounded-2xl p-6 relative overflow-hidden group hover:border-gray-700 transition-colors">
                         <div className="flex items-center justify-between mb-4">
@@ -116,20 +118,28 @@ export default function AudiencePage() {
                     </div>
                 </div>
                 <div className="h-[350px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={returningViewersData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                            <CartesianGrid vertical={false} stroke="#1f2937" strokeDasharray="3 3" />
-                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
-                                itemStyle={{ color: '#fff' }}
-                            />
-                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                            <Line type="monotone" name="Returning Viewers" dataKey="returning" stroke="#8b5cf6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                            <Line type="monotone" name="New Viewers" dataKey="new" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                        </LineChart>
-                    </ResponsiveContainer>
+                    {isConnected ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={returningViewersData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <CartesianGrid vertical={false} stroke="#1f2937" strokeDasharray="3 3" />
+                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
+                                    itemStyle={{ color: '#fff' }}
+                                />
+                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                                <Line type="monotone" name="Returning Viewers" dataKey="returning" stroke="#8b5cf6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                                <Line type="monotone" name="New Viewers" dataKey="new" stroke="#3b82f6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-white/5 rounded-2xl border border-dashed border-gray-800">
+                            <LineChart className="w-12 h-12 text-gray-700 mb-4" />
+                            <p className="text-gray-500 font-medium">No audience data</p>
+                            <p className="text-xs text-gray-600 mt-1">Connect your channel to see viewer trends</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -140,16 +150,22 @@ export default function AudiencePage() {
                 <div className="bg-[#0f1218] border border-gray-800 rounded-3xl p-6">
                     <h3 className="text-lg font-bold text-white mb-6">Age & Gender</h3>
                     <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={ageGenderData} layout="vertical" barGap={2} barSize={12}>
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="age" type="category" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} width={40} />
-                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }} />
-                                <Bar dataKey="male" name="Male" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                                <Bar dataKey="female" name="Female" fill="#ec4899" radius={[0, 4, 4, 0]} />
-                                <Legend wrapperStyle={{ fontSize: '12px', marginTop: '10px' }} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {isConnected ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={ageGenderData} layout="vertical" barGap={2} barSize={12}>
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="age" type="category" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} width={40} />
+                                    <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }} />
+                                    <Bar dataKey="male" name="Male" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                                    <Bar dataKey="female" name="Female" fill="#ec4899" radius={[0, 4, 4, 0]} />
+                                    <Legend wrapperStyle={{ fontSize: '12px', marginTop: '10px' }} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center bg-white/5 rounded-2xl border border-dashed border-gray-800">
+                                <p className="text-gray-500 text-sm italic">Connect channel for demographics</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -157,7 +173,7 @@ export default function AudiencePage() {
                 <div className="bg-[#0f1218] border border-gray-800 rounded-3xl p-6">
                     <h3 className="text-lg font-bold text-white mb-6">Top Geographies</h3>
                     <div className="flex flex-col gap-4">
-                        {geographyData.map((country, i) => (
+                        {isConnected ? geographyData.map((country, i) => (
                             <div key={i} className="relative">
                                 <div className="flex items-center justify-between text-sm mb-1 z-10 relative">
                                     <span className="text-white font-medium flex items-center gap-2">
@@ -173,7 +189,11 @@ export default function AudiencePage() {
                                     />
                                 </div>
                             </div>
-                        ))}
+                        )) : (
+                            <div className="py-10 text-center opacity-30 grayscale italic text-sm text-gray-500">
+                                Global data unavailable
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -184,15 +204,21 @@ export default function AudiencePage() {
                         When your viewers are on YouTube
                     </h3>
                     <div className="h-[250px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={activeTimeData}>
-                                <CartesianGrid vertical={false} stroke="#1f2937" strokeDasharray="3 3" />
-                                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                                <Tooltip cursor={{ fill: '#1f2937', opacity: 0.5 }} contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }} />
-                                <Bar dataKey="views" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={40} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {isConnected ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={activeTimeData}>
+                                    <CartesianGrid vertical={false} stroke="#1f2937" strokeDasharray="3 3" />
+                                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                                    <Tooltip cursor={{ fill: '#1f2937', opacity: 0.5 }} contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }} />
+                                    <Bar dataKey="views" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={40} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-white/5 rounded-2xl border border-dashed border-gray-800">
+                                <p className="text-gray-500 text-sm italic">Connect channel for active time insights</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

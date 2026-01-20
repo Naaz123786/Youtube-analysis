@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Info, Download, Calendar, Filter, Eye } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, Cell, PieChart, Pie } from 'recharts';
+import { useChannelStore } from "@/lib/store/useChannelStore";
 
 // Mock Data
 const viewsData = [
@@ -38,6 +39,7 @@ const demographicsData = [
 ];
 
 export default function AnalyticsPage() {
+    const { isConnected } = useChannelStore();
     const [activeChart, setActiveChart] = useState<'views' | 'revenue'>('views');
     const [showExportMenu, setShowExportMenu] = useState(false);
     const [showDateMenu, setShowDateMenu] = useState(false);
@@ -137,10 +139,10 @@ export default function AnalyticsPage() {
             {/* Top Level Metrics (Detailed) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: 'Realtime Views', value: '4,281', sub: 'Last 48 hours', trend: '+5%', color: 'text-blue-400' },
-                    { label: 'Est. Revenue', value: '$2,482.59', sub: 'RPM: $3.45', trend: '+12%', color: 'text-green-400' },
-                    { label: 'Avg. Duration', value: '8:42', sub: 'Top 10%', trend: '-2%', color: 'text-purple-400' },
-                    { label: 'Impressions', value: '252K', sub: 'CTR: 5.8%', trend: '+8%', color: 'text-orange-400' },
+                    { label: 'Realtime Views', value: isConnected ? '4,281' : '0', sub: 'Last 48 hours', trend: '+5%', color: 'text-blue-400' },
+                    { label: 'Est. Revenue', value: isConnected ? '$2,482.59' : '$0.00', sub: 'RPM: $3.45', trend: '+12%', color: 'text-green-400' },
+                    { label: 'Avg. Duration', value: isConnected ? '8:42' : '0:00', sub: 'Top 10%', trend: '-2%', color: 'text-purple-400' },
+                    { label: 'Impressions', value: isConnected ? '252K' : '0', sub: 'CTR: 5.8%', trend: '+8%', color: 'text-orange-400' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-[#0f1218] border border-gray-800 rounded-2xl p-6 relative overflow-hidden group hover:border-gray-700 transition-colors">
                         <h3 className="text-gray-400 text-sm font-medium mb-2 flex items-center gap-2">
@@ -185,48 +187,56 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div className="h-[350px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={viewsData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                            <CartesianGrid vertical={false} stroke="#1f2937" strokeDasharray="3 3" />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
-                                itemStyle={{ color: '#fff' }}
-                            />
-                            {activeChart === 'views' ? (
-                                <Area
-                                    type="monotone"
-                                    dataKey="views"
-                                    stroke="#3b82f6"
-                                    strokeWidth={3}
-                                    fillOpacity={1}
-                                    fill="url(#colorViews)"
-                                    animationDuration={1000}
+                    {isConnected ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={viewsData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                    </linearGradient>
+                                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                                <CartesianGrid vertical={false} stroke="#1f2937" strokeDasharray="3 3" />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
+                                    itemStyle={{ color: '#fff' }}
                                 />
-                            ) : (
-                                <Area
-                                    type="monotone"
-                                    dataKey="revenue"
-                                    stroke="#10b981"
-                                    strokeWidth={3}
-                                    fillOpacity={1}
-                                    fill="url(#colorRev)"
-                                    animationDuration={1000}
-                                />
-                            )}
-                        </AreaChart>
-                    </ResponsiveContainer>
+                                {activeChart === 'views' ? (
+                                    <Area
+                                        type="monotone"
+                                        dataKey="views"
+                                        stroke="#3b82f6"
+                                        strokeWidth={3}
+                                        fillOpacity={1}
+                                        fill="url(#colorViews)"
+                                        animationDuration={1000}
+                                    />
+                                ) : (
+                                    <Area
+                                        type="monotone"
+                                        dataKey="revenue"
+                                        stroke="#10b981"
+                                        strokeWidth={3}
+                                        fillOpacity={1}
+                                        fill="url(#colorRev)"
+                                        animationDuration={1000}
+                                    />
+                                )}
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-white/5 rounded-2xl border border-dashed border-gray-800">
+                            <Eye className="w-12 h-12 text-gray-700 mb-4" />
+                            <p className="text-gray-500 font-medium">No data to visualize</p>
+                            <p className="text-xs text-gray-600 mt-1">Please connect your YouTube channel</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -240,49 +250,55 @@ export default function AnalyticsPage() {
                         <Filter className="w-4 h-4 text-gray-500 cursor-pointer hover:text-white" />
                     </div>
                     <div className="flex flex-col md:flex-row items-center justify-center gap-8 h-[300px]">
-                        <div className="w-full h-full relative">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={trafficSourceData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {trafficSourceData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
-                                        itemStyle={{ color: '#fff' }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                            {/* Center Text */}
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-white">45%</div>
-                                    <div className="text-xs text-gray-500">Search</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Custom Legend */}
-                        <div className="w-full max-w-[200px] space-y-3">
-                            {trafficSourceData.map((item, i) => (
-                                <div key={i} className="flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                                        <span className="text-gray-300">{item.name}</span>
+                        {isConnected ? (
+                            <>
+                                <div className="w-full h-full relative">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={trafficSourceData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                {trafficSourceData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
+                                                itemStyle={{ color: '#fff' }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                        <div className="text-center">
+                                            <div className="text-2xl font-bold text-white">45%</div>
+                                            <div className="text-xs text-gray-500">Search</div>
+                                        </div>
                                     </div>
-                                    <span className="font-bold text-white">{item.value}%</span>
                                 </div>
-                            ))}
-                        </div>
+
+                                <div className="w-full max-w-[200px] space-y-3">
+                                    {trafficSourceData.map((item, i) => (
+                                        <div key={i} className="flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                                <span className="text-gray-300">{item.name}</span>
+                                            </div>
+                                            <span className="font-bold text-white">{item.value}%</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center opacity-30 italic text-gray-500">
+                                <p>No sources found</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -300,23 +316,29 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
                     <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={demographicsData}
-                                layout="vertical"
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                                barSize={20}
-                            >
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="age" type="category" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} width={40} />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
-                                    cursor={{ fill: 'transparent' }}
-                                />
-                                <Bar dataKey="male" stackId="a" fill="#3b82f6" radius={[4, 0, 0, 4]} />
-                                <Bar dataKey="female" stackId="a" fill="#3b82f6" fillOpacity={0.3} radius={[0, 4, 4, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {isConnected ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={demographicsData}
+                                    layout="vertical"
+                                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    barSize={20}
+                                >
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="age" type="category" axisLine={false} tickLine={false} tick={{ fill: '#9ca3af', fontSize: 12 }} width={40} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#111827', borderColor: '#374151', borderRadius: '8px' }}
+                                        cursor={{ fill: 'transparent' }}
+                                    />
+                                    <Bar dataKey="male" stackId="a" fill="#3b82f6" radius={[4, 0, 0, 4]} />
+                                    <Bar dataKey="female" stackId="a" fill="#3b82f6" fillOpacity={0.3} radius={[0, 4, 4, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center opacity-30 italic text-gray-500">
+                                <p>No demographic data</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

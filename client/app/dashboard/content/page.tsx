@@ -17,6 +17,7 @@ import {
     Play
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useChannelStore } from "@/lib/store/useChannelStore";
 
 // Mock data for the content manager
 const initialVideos = [
@@ -67,6 +68,7 @@ const initialVideos = [
 ];
 
 export default function ContentManagerPage() {
+    const { isConnected } = useChannelStore();
     const [searchQuery, setSearchQuery] = useState("");
     const [videos] = useState(initialVideos);
 
@@ -133,7 +135,7 @@ export default function ContentManagerPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-800/50">
-                            {filteredVideos.map((video) => (
+                            {isConnected ? filteredVideos.map((video) => (
                                 <tr key={video.id} className="group hover:bg-gray-800/20 transition-colors">
                                     <td className="px-6 py-4 min-w-[300px]">
                                         <div className="flex gap-4">
@@ -200,7 +202,16 @@ export default function ContentManagerPage() {
                                         </button>
                                     </td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan={8} className="px-6 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <Play className="w-10 h-10 text-gray-700" />
+                                            <p className="text-gray-400 text-sm italic">Connect your channel to view and manage content.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
